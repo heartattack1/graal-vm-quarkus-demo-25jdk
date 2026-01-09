@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quarkus-native-proto
+  labels:
+    app: quarkus-native-proto
+  annotations:
+    # Example for NGINX ingress controller; adjust for your cluster
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: quarkus-native-proto.local
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: quarkus-native-proto
+                port:
+                  name: http

@@ -12,13 +12,13 @@ This repository is intended as a **reference implementation** and starting point
 
 ## Technology Stack
 
-- **Java**: 25
-- **Build Tool**: Gradle (Wrapper)
-- **Framework**: Quarkus
-- **HTTP API**: REST (JAX-RS)
-- **JSON**: Jackson
-- **Health Checks**: SmallRye Health
-- **Native Image**: GraalVM / Mandrel (container build)
+- **Java**: 25  
+- **Build Tool**: Gradle (Wrapper)  
+- **Framework**: Quarkus  
+- **HTTP API**: REST (JAX-RS)  
+- **JSON**: Jackson  
+- **Health Checks**: SmallRye Health  
+- **Native Image**: GraalVM / Mandrel (container build)  
 - **Target Platform**: Kubernetes (Linux)
 
 ---
@@ -140,9 +140,13 @@ Application endpoints:
 Native image is built **inside a container**, no local GraalVM installation required.
 
 ```bash
+
 ./gradlew clean build \
-  -Dquarkus.package.type=native \
-  -Dquarkus.native.container-build=true
+  -Dquarkus.native.enabled=true \
+  -Dquarkus.package.jar.enabled=false \
+  -Dquarkus.native.container-build=true \
+  -Dquarkus.native.builder-image=quay.io/quarkus/ubi9-quarkus-mandrel-builder-image:jdk-25
+
 ```
 
 Result:
@@ -439,6 +443,53 @@ kubectl delete -f k8s/hpa.yaml
 - `imagePullPolicy: IfNotPresent` prevents Kubernetes from pulling images remotely
 
 
+---
+
+## Local Kubernetes workflow (Kustomize + Makefile)
+
+For local development on Kubernetes without a remote registry, the repository includes:
+
+- `k8s/base/` — base manifests (Deployment + Service)
+- `k8s/overlays/local/` — local overlay (image tag, pull policy, smaller resource limits)
+- `Makefile` — one-command workflow for native build, image build, loading into kind, and deployment
+
+### Deploy to kind in one command
+
+```bash
+make k8s-run
+```
+
+Then, in another terminal:
+
+```bash
+make port-forward
+```
+
+And run a quick smoke test:
+
+```bash
+make smoke
+```
+
+### Apply manifests without Makefile
+
+```bash
+kubectl apply -k k8s/overlays/local
+kubectl rollout status deployment/quarkus-native-proto
+kubectl port-forward svc/quarkus-native-proto 8080:80
+```
+
+### Notes
+
+- `k8s/overlays/local/kustomization.yaml` pins the image tag to `0.1.0` by default.
+  Update `newTag` when you change the image version.
+- The local overlay enforces `imagePullPolicy: IfNotPresent` to avoid pulling from remote registries.
+
+
 ## License
 
 MIT
+
+
+### Minikube
+Use `make minikube-run` to build and deploy without a remote registry.
