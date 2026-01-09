@@ -1,1 +1,11 @@
-rootProject.name = 'graal-vm-quarkus-demo-25jdk'
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id "io.quarkus" version "${quarkusPluginVersion}"
+    }
+}
+
+rootProject.name = "graal-vm-quarkus-demo-25jdk"

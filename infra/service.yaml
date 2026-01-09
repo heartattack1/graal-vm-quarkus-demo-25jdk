@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: quarkus-native-proto
+  labels:
+    app: quarkus-native-proto
+spec:
+  selector:
+    app: quarkus-native-proto
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  type: ClusterIP
